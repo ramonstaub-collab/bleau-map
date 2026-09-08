@@ -1,60 +1,67 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#13261d" />
-  <title>Bleau Map</title>
-  <link rel="preconnect" href="https://unpkg.com" />
-  <link rel="preconnect" href="https://tile.openstreetmap.org" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <style>
-    :root{--bg:#0f1914;--panel:#17261f;--panel2:#20352a;--text:#f5f7f6;--muted:#b8c4be;--accent:#80cfa0;--danger:#ff8278;--warn:#f4c96b;--ok:#79d69b}
-    *{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    body{overflow:hidden}.app{height:100%;display:grid;grid-template-rows:auto 1fr}
-    header{position:relative;z-index:1000;padding:10px 12px;background:linear-gradient(180deg,rgba(15,25,20,.98),rgba(15,25,20,.92));backdrop-filter:blur(10px);display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.18)}
-    .brand{min-width:0;flex:1}.brand h1{font-size:18px;line-height:1.1;margin:0}.brand p{margin:3px 0 0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    button,.chip{border:0;border-radius:14px;background:var(--panel2);color:var(--text);padding:10px 12px;font-weight:700;font-size:13px}.locate{background:var(--accent);color:#0c1b12;display:flex;align-items:center;gap:7px;box-shadow:0 6px 18px rgba(128,207,160,.2)}
-    #map{height:100%;width:100%}.leaflet-control-zoom a{background:#17261f!important;color:#fff!important;border-color:#2e483a!important}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#17261f;color:#fff}.leaflet-popup-content{margin:14px 15px;min-width:220px}
-    .popup-title{font-size:16px;font-weight:800;margin-bottom:5px}.popup-sub{font-size:12px;color:var(--muted);margin-bottom:10px}.maps-link{display:block;text-align:center;text-decoration:none;background:var(--accent);color:#0c1b12;padding:10px 12px;border-radius:12px;font-weight:800}
-    .floating{position:absolute;z-index:900;left:12px;right:12px;bottom:18px;display:flex;justify-content:center;pointer-events:none}.notice{pointer-events:auto;display:none;max-width:560px;background:rgba(23,38,31,.97);border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 28px rgba(0,0,0,.35);border-radius:18px;padding:14px}.notice.show{display:block}.notice h2{font-size:15px;margin:0 0 6px}.notice p{font-size:13px;color:var(--muted);line-height:1.35;margin:0 0 10px}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:130px}.primary{background:var(--accent);color:#0c1b12}.secondary{background:#293c32}.close{background:transparent;border:1px solid #40574b;color:var(--muted)}
-    .legend{position:absolute;z-index:800;right:12px;top:72px;background:rgba(23,38,31,.92);border-radius:14px;padding:8px 10px;font-size:12px;box-shadow:0 6px 18px rgba(0,0,0,.22)}.legend-row{display:flex;align-items:center;gap:7px;margin:4px 0}.dot{width:10px;height:10px;border-radius:50%}.dot.parking{background:#6ab7ff}.dot.you{background:#80cfa0}
-    @media (max-width:520px){header{padding-top:max(10px,env(safe-area-inset-top))}.brand p{max-width:150px}.locate span.label{display:none}.locate{padding:10px 11px}.legend{top:70px}}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#102118">
+<title>Bleau Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+:root{--bg:#0d1712;--panel:#17261f;--panel2:#22382d;--text:#f5f7f6;--muted:#b7c4bd;--green:#58d68d;--red:#ff6f67;--amber:#f4c65d;--blue:#65b9ff}
+*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}body{overflow:hidden}.app{height:100%;display:grid;grid-template-rows:auto 1fr}
+header{z-index:1000;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;gap:8px;background:rgba(13,23,18,.96);backdrop-filter:blur(10px);box-shadow:0 5px 18px #0005}.brand{flex:1;min-width:0}.brand h1{font-size:18px;margin:0}.brand p{font-size:11px;color:var(--muted);margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button{border:0;border-radius:13px;padding:10px 11px;font-weight:800;background:var(--panel2);color:var(--text)}#locateBtn{background:#86d8a7;color:#0c1a12}.filterBtn.active{outline:2px solid #fff5}#map{width:100%;height:100%}
+.legend{position:absolute;right:10px;top:72px;z-index:900;background:rgba(23,38,31,.94);padding:9px 10px;border-radius:14px;font-size:11px;box-shadow:0 5px 18px #0005}.row{display:flex;align-items:center;gap:7px;margin:4px 0}.dot{width:10px;height:10px;border-radius:50%}.open{background:var(--green)}.closed{background:var(--red)}.partial{background:var(--amber)}.parking{background:var(--blue)}
+.filters{position:absolute;left:10px;top:72px;z-index:900;display:flex;gap:6px;flex-wrap:wrap;max-width:72%}.filters button{font-size:11px;padding:8px 9px;background:rgba(23,38,31,.94);box-shadow:0 4px 13px #0004}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--text)}.leaflet-popup-content{min-width:220px;margin:13px}.title{font-size:16px;font-weight:900}.sub{margin-top:4px;font-size:12px;color:var(--muted);line-height:1.35}.badge{display:inline-block;margin:8px 0;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900}.badge-open{background:#173d28;color:#80e6a8}.badge-closed{background:#4a211f;color:#ff938c}.badge-partial{background:#493b18;color:#ffd875}.maps{display:block;text-align:center;text-decoration:none;background:#82d5a4;color:#0c1a12;padding:10px;border-radius:11px;font-weight:900;margin-top:9px}.source{display:block;text-align:center;text-decoration:none;color:#c6d2cc;font-size:11px;margin-top:8px}
+.noticeWrap{position:absolute;left:10px;right:10px;bottom:16px;z-index:950;display:flex;justify-content:center;pointer-events:none}.notice{display:none;pointer-events:auto;max-width:560px;background:rgba(23,38,31,.97);border:1px solid #ffffff15;border-radius:17px;padding:13px;box-shadow:0 10px 28px #0007}.notice.show{display:block}.notice h2{font-size:14px;margin:0 0 5px}.notice p{font-size:12px;line-height:1.4;color:var(--muted);margin:0 0 9px}.actions{display:flex;gap:7px}.actions button{flex:1}.primary{background:#84d6a5;color:#0c1a12}.close{background:#2b4035}
+@media(max-width:560px){header .label{display:none}.legend{top:69px}.filters{top:69px;max-width:68%}}
+</style>
 </head>
-<body>
-<div class="app">
-  <header>
-    <div class="brand"><h1>Bleau Map</h1><p>Fontainebleau · mobile Karte</p></div>
-    <button class="locate" id="locateBtn" type="button" aria-label="Meinen Standort anzeigen">◎ <span class="label">Mein Standort</span></button>
-  </header>
-  <div id="map"></div>
-</div>
-<div class="legend"><div class="legend-row"><span class="dot parking"></span>Parkplatz</div><div class="legend-row"><span class="dot you"></span>Dein Standort</div></div>
-<div class="floating"><div class="notice" id="notice"><h2 id="noticeTitle">Standortzugriff</h2><p id="noticeText"></p><div class="actions" id="noticeActions"></div></div></div>
+<body><div class="app"><header><div class="brand"><h1>Bleau Map</h1><p>Zugangsstatus · Stand 3.–4. Sept. 2026</p></div><button id="locateBtn">◎ <span class="label">Mein Standort</span></button></header><div id="map"></div></div>
+<div class="filters"><button class="filterBtn active" data-filter="all">Alle</button><button class="filterBtn" data-filter="open">Offen</button><button class="filterBtn" data-filter="closed">Gesperrt</button><button class="filterBtn" data-filter="parking">Parkplätze</button></div>
+<div class="legend"><div class="row"><span class="dot open"></span>offen</div><div class="row"><span class="dot partial"></span>teilweise</div><div class="row"><span class="dot closed"></span>gesperrt</div><div class="row"><span class="dot parking"></span>Parkplatz</div></div>
+<div class="noticeWrap"><div class="notice" id="notice"><h2 id="noticeTitle"></h2><p id="noticeText"></p><div class="actions" id="noticeActions"></div></div></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
-  const map=L.map('map',{zoomControl:true}).setView([48.404,2.685],12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
-
-  const parkings=[];
-  const parkingIcon=L.divIcon({className:'',html:'<div style="width:28px;height:28px;border-radius:50%;background:#2787d8;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.35);display:grid;place-items:center;color:white;font:bold 16px system-ui">P</div>',iconSize:[28,28],iconAnchor:[14,14]});
-  parkings.forEach(p=>{
-    const marker=L.marker([p.lat,p.lng],{icon:parkingIcon}).addTo(map);
-    const url=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.lat+','+p.lng)}`;
-    marker.bindPopup(`<div class="popup-title">${p.name}</div><div class="popup-sub">Parkplatz</div><a class="maps-link" href="${url}" target="_blank" rel="noopener">In Google Maps öffnen</a>`);
-  });
-
-  let userMarker=null,userCircle=null;
-  const notice=document.getElementById('notice'),noticeTitle=document.getElementById('noticeTitle'),noticeText=document.getElementById('noticeText'),noticeActions=document.getElementById('noticeActions');
-  function hideNotice(){notice.classList.remove('show')}
-  function showNotice(title,text,buttons=[]){noticeTitle.textContent=title;noticeText.innerHTML=text;noticeActions.innerHTML='';buttons.forEach(b=>{const el=document.createElement('button');el.textContent=b.text;el.className=b.cls||'secondary';el.onclick=b.onClick;noticeActions.appendChild(el)});notice.classList.add('show')}
-  function drawLocation(pos){const {latitude,longitude,accuracy}=pos.coords;if(userMarker)map.removeLayer(userMarker);if(userCircle)map.removeLayer(userCircle);userCircle=L.circle([latitude,longitude],{radius:accuracy,color:'#80cfa0',fillColor:'#80cfa0',fillOpacity:.12,weight:1}).addTo(map);userMarker=L.circleMarker([latitude,longitude],{radius:9,color:'#fff',weight:3,fillColor:'#44c779',fillOpacity:1}).addTo(map).bindPopup('<div class="popup-title">Du bist hier</div>');map.setView([latitude,longitude],15);hideNotice()}
-  function locationError(err){let text='Der Standort konnte nicht bestimmt werden.';if(err.code===1){text='<b>Standort ist für diese Seite blockiert.</b><br>Tippe in Chrome auf das Symbol links neben der Webadresse → <b>Berechtigungen</b> → <b>Standort</b> → <b>Zulassen</b>. Danach hier erneut versuchen.'}else if(err.code===2){text='Dein Gerät konnte gerade keinen Standort ermitteln. Prüfe, ob GPS/Standort am Handy eingeschaltet ist.'}else if(err.code===3){text='Die Standortbestimmung hat zu lange gedauert. Versuche es erneut.'}showNotice('Standort nicht verfügbar',text,[{text:'Erneut versuchen',cls:'primary',onClick:requestLocation},{text:'Schliessen',cls:'close',onClick:hideNotice}])}
-  function requestLocation(){if(!('geolocation' in navigator)){showNotice('Nicht unterstützt','Dieser Browser unterstützt die Standortbestimmung nicht.',[{text:'Schliessen',cls:'close',onClick:hideNotice}]);return}navigator.geolocation.getCurrentPosition(drawLocation,locationError,{enableHighAccuracy:true,timeout:12000,maximumAge:10000})}
-  document.getElementById('locateBtn').addEventListener('click',requestLocation);
-
-  if(navigator.permissions?.query){navigator.permissions.query({name:'geolocation'}).then(r=>{if(r.state==='denied'){showNotice('Standort ist blockiert','Für den Live-Standort musst du die Berechtigung dieser Seite in deinem Browser auf <b>Zulassen</b> setzen.',[{text:'So geht’s',cls:'primary',onClick:()=>showNotice('Standort freigeben','In Chrome: Symbol links neben der Adresse → <b>Berechtigungen</b> → <b>Standort</b> → <b>Zulassen</b>. Danach zurück zur Karte und auf <b>Mein Standort</b> tippen.',[{text:'Standort erneut prüfen',cls:'primary',onClick:requestLocation},{text:'Schliessen',cls:'close',onClick:hideNotice}])},{text:'Schliessen',cls:'close',onClick:hideNotice}])}}).catch(()=>{})}
-</script>
-</body>
-</html>
+const STATUS_SOURCE='https://www.topo-bleau.fr/Home';
+const map=L.map('map',{zoomControl:true}).setView([48.405,2.615],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+const sectors=[
+{name:'Bas Cuvier',lat:48.4462,lng:2.6390,status:'open',note:'Offen. Vor-Ort-Signalisation beachten.'},
+{name:'Franchard Isatis',lat:48.4095,lng:2.6010,status:'open',note:'Offen. Zugang über Parkplatz Isatis.'},
+{name:'Franchard Cuisinière',lat:48.4149,lng:2.6105,status:'open',note:'Offen.'},
+{name:'Rocher Canon',lat:48.4627,lng:2.6632,status:'open',note:'Offen.'},
+{name:'Mont Ussy',lat:48.4178,lng:2.7000,status:'open',note:'Offen.'},
+{name:'Restant du Long Rocher',lat:48.3305,lng:2.7005,status:'open',note:'Offen.'},
+{name:'Éléphant / Larchant',lat:48.2930,lng:2.5938,status:'open',note:'Offen.'},
+{name:'Apremont – offene Bereiche',lat:48.4373,lng:2.6310,status:'open',note:'Mehrere Apremont-Bereiche sind offen; einzelne Teilbereiche bleiben gesperrt.'},
+{name:'Apremont Envers',lat:48.4315,lng:2.6250,status:'closed',note:'Gesperrte/gefährdete Teilbereiche beachten.'},
+{name:'Mont Aigu',lat:48.4035,lng:2.6535,status:'closed',note:'Gesperrt.'},
+{name:'95.2',lat:48.3840,lng:2.5260,status:'closed',note:'Trois-Pignons: gesperrt.'},
+{name:'Cul de Chien',lat:48.3727,lng:2.5070,status:'closed',note:'Trois-Pignons: gesperrt.'},
+{name:'Roche aux Sabots',lat:48.3757,lng:2.5190,status:'closed',note:'Trois-Pignons: gesperrt.'},
+{name:'Apremont Portes du Désert',lat:48.4302,lng:2.6070,status:'partial',note:'Teilweise offen; einzelne Blöcke liegen weiterhin im Sperrgebiet.'},
+{name:'La Ségognole',lat:48.3880,lng:2.5420,status:'partial',note:'Nur teilweise offen; offizielle Karte und Beschilderung prüfen.'}
+];
+const parkings=[
+{name:'Parking Bas Cuvier',lat:48.446425,lng:2.637633},
+{name:'Parking Isatis',lat:48.411243,lng:2.598477},
+{name:'Parking Rocher Canon',lat:48.463025,lng:2.666148},
+{name:'Parking Roche aux Sabots / Noisy',lat:48.374543,lng:2.513916,warning:'Der zugehörige Trois-Pignons-Bereich ist derzeit gesperrt.'},
+{name:'Parking Croix Saint-Jérôme (95.2)',lat:48.387789,lng:2.519429,warning:'95.2 ist derzeit gesperrt.'},
+{name:'Parking de l’Éléphant',lat:48.29301,lng:2.59822}
+];
+const layers={sector:[],parking:[]};
+function statusColor(s){return s==='open'?'#58d68d':s==='closed'?'#ff6f67':'#f4c65d'}
+function badge(s){const txt=s==='open'?'OFFEN':s==='closed'?'GESPERRT':'TEILWEISE';return `<span class="badge badge-${s}">${txt}</span>`}
+sectors.forEach(s=>{const m=L.circleMarker([s.lat,s.lng],{radius:10,color:'#fff',weight:2,fillColor:statusColor(s.status),fillOpacity:.95}).addTo(map);m._kind='sector';m._status=s.status;m.bindPopup(`<div class="title">${s.name}</div>${badge(s.status)}<div class="sub">${s.note}<br><br>Im Zweifel gilt immer die Beschilderung bzw. Absperrung vor Ort.</div><a class="source" href="${STATUS_SOURCE}" target="_blank" rel="noopener">Aktuelle Zugangsinfo öffnen</a>`);layers.sector.push(m)});
+const pIcon=L.divIcon({className:'',html:'<div style="width:29px;height:29px;border-radius:50%;background:#2787d8;border:3px solid #fff;box-shadow:0 2px 8px #0008;display:grid;place-items:center;color:#fff;font:bold 16px system-ui">P</div>',iconSize:[29,29],iconAnchor:[14,14]});
+parkings.forEach(p=>{const m=L.marker([p.lat,p.lng],{icon:pIcon}).addTo(map);m._kind='parking';const g=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;m.bindPopup(`<div class="title">${p.name}</div><div class="sub">${p.warning||'Navigation direkt zu diesem Parkplatz.'}</div><a class="maps" href="${g}" target="_blank" rel="noopener">In Google Maps navigieren</a>`);layers.parking.push(m)});
+function setFilter(f){document.querySelectorAll('.filterBtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));[...layers.sector,...layers.parking].forEach(l=>map.removeLayer(l));if(f==='all'){[...layers.sector,...layers.parking].forEach(l=>l.addTo(map))}else if(f==='parking'){layers.parking.forEach(l=>l.addTo(map))}else{layers.sector.filter(l=>l._status===f||(f==='open'&&l._status==='partial')).forEach(l=>l.addTo(map))}}
+document.querySelectorAll('.filterBtn').forEach(b=>b.onclick=()=>setFilter(b.dataset.filter));
+let userMarker,userCircle;const notice=document.getElementById('notice'),noticeTitle=document.getElementById('noticeTitle'),noticeText=document.getElementById('noticeText'),noticeActions=document.getElementById('noticeActions');
+function hideNotice(){notice.classList.remove('show')}function showNotice(t,x,buttons=[]){noticeTitle.textContent=t;noticeText.innerHTML=x;noticeActions.innerHTML='';buttons.forEach(b=>{const el=document.createElement('button');el.textContent=b.text;el.className=b.cls||'close';el.onclick=b.fn;noticeActions.appendChild(el)});notice.classList.add('show')}
+function drawLocation(pos){const {latitude,longitude,accuracy}=pos.coords;if(userMarker)map.removeLayer(userMarker);if(userCircle)map.removeLayer(userCircle);userCircle=L.circle([latitude,longitude],{radius:accuracy,color:'#72dc9c',fillColor:'#72dc9c',fillOpacity:.12,weight:1}).addTo(map);userMarker=L.circleMarker([latitude,longitude],{radius:9,color:'#fff',weight:3,fillColor:'#34c970',fillOpacity:1}).addTo(map).bindPopup('<div class="title">Du bist hier</div>');map.setView([latitude,longitude],15);hideNotice()}
+function locationError(e){let x='Standort konnte nicht bestimmt werden.';if(e.code===1)x='<b>Standort ist für diese Seite blockiert.</b><br>In Chrome: Symbol links neben der Webadresse → Berechtigungen → Standort → Zulassen. Danach erneut auf „Mein Standort“ tippen.';if(e.code===2)x='GPS/Standort am Handy einschalten und erneut versuchen.';if(e.code===3)x='Die Standortbestimmung hat zu lange gedauert.';showNotice('Standort nicht verfügbar',x,[{text:'Erneut versuchen',cls:'primary',fn:requestLocation},{text:'Schliessen',fn:hideNotice}])}
+function requestLocation(){if(!navigator.geolocation){showNotice('Nicht unterstützt','Dieser Browser unterstützt Standort nicht.',[{text:'Schliessen',fn:hideNotice}]);return}navigator.geolocation.getCurrentPosition(drawLocation,locationError,{enableHighAccuracy:true,timeout:12000,maximumAge:10000})}
+document.getElementById('locateBtn').onclick=requestLocation;
+</script></body></html>
