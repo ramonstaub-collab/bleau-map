@@ -11,13 +11,13 @@ header{z-index:1000;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-t
 button{border:0;border-radius:13px;padding:10px 11px;font-weight:800;background:var(--panel2);color:var(--text);cursor:pointer}#locateBtn{background:#86d8a7;color:#0c1a12}.filterBtn.active{outline:2px solid #fff5}#map{width:100%;height:100%}
 .legend{position:absolute;right:10px;top:72px;z-index:900;background:rgba(23,38,31,.94);padding:9px 10px;border-radius:14px;font-size:11px;box-shadow:0 5px 18px #0005}.row{display:flex;align-items:center;gap:7px;margin:4px 0}.dot{width:10px;height:10px;border-radius:50%}.open{background:var(--green)}.closed{background:var(--red)}.partial{background:var(--amber)}.parking{background:var(--blue)}
 .filters{position:absolute;left:10px;top:72px;z-index:900;display:flex;gap:6px;flex-wrap:wrap;max-width:72%}.filters button{font-size:11px;padding:8px 9px;background:rgba(23,38,31,.94);box-shadow:0 4px 13px #0004}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--text)}.leaflet-popup-content{min-width:230px;margin:13px}.title{font-size:16px;font-weight:900}.sub{margin-top:4px;font-size:12px;color:var(--muted);line-height:1.4}.badge{display:inline-block;margin:8px 0;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900}.badge-open{background:#173d28;color:#80e6a8}.badge-closed{background:#4a211f;color:#ff938c}.badge-partial{background:#493b18;color:#ffd875}.maps,.sectorLink{display:block;text-align:center;text-decoration:none;padding:10px;border-radius:11px;font-weight:900;margin-top:8px}.maps{background:#82d5a4;color:#0c1a12}.sectorLink{background:#2b4035;color:#f5f7f6}.source{display:block;text-align:center;text-decoration:none;color:#c6d2cc;font-size:11px;margin-top:9px}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--text)}.leaflet-popup-content{min-width:240px;margin:13px}.title{font-size:16px;font-weight:900}.sub{margin-top:4px;font-size:12px;color:var(--muted);line-height:1.4}.badge{display:inline-block;margin:8px 0;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900}.badge-open{background:#173d28;color:#80e6a8}.badge-closed{background:#4a211f;color:#ff938c}.badge-partial{background:#493b18;color:#ffd875}.maps,.sectorLink{display:block;text-align:center;text-decoration:none;padding:10px;border-radius:11px;font-weight:900;margin-top:8px}.maps{background:#82d5a4;color:#0c1a12}.sectorLink{background:#2b4035;color:#f5f7f6}.source{display:block;text-align:center;text-decoration:none;color:#c6d2cc;font-size:11px;margin-top:9px}.parkingFor{margin-top:7px;padding-top:7px;border-top:1px solid #ffffff12;color:#d6dfda}
 .noticeWrap{position:absolute;left:10px;right:10px;bottom:16px;z-index:950;display:flex;justify-content:center;pointer-events:none}.notice{display:none;pointer-events:auto;max-width:560px;background:rgba(23,38,31,.97);border:1px solid #ffffff15;border-radius:17px;padding:13px;box-shadow:0 10px 28px #0007}.notice.show{display:block}.notice h2{font-size:14px;margin:0 0 5px}.notice p{font-size:12px;line-height:1.4;color:var(--muted);margin:0 0 9px}.actions{display:flex;gap:7px}.actions button{flex:1}.primary{background:#84d6a5;color:#0c1a12}.close{background:#2b4035}
 @media(max-width:560px){header .label{display:none}.legend{top:69px}.filters{top:69px;max-width:68%}}
 </style>
 </head>
 <body>
-<div class="app"><header><div class="brand"><h1>Bleau Map</h1><p id="subtitle">90 Sektoren · Zugangsstatus · Stand 3.–4. Sept. 2026</p></div><button id="locateBtn">◎ <span class="label">Mein Standort</span></button></header><div id="map"></div></div>
+<div class="app"><header><div class="brand"><h1>Bleau Map</h1><p id="subtitle">90 Sektoren · 25 Parkplätze · Stand 3.–4. Sept. 2026</p></div><button id="locateBtn">◎ <span class="label">Mein Standort</span></button></header><div id="map"></div></div>
 <div class="filters"><button class="filterBtn active" data-filter="all">Alle</button><button class="filterBtn" data-filter="open">Offen</button><button class="filterBtn" data-filter="closed">Gesperrt</button><button class="filterBtn" data-filter="partial">Teilweise</button><button class="filterBtn" data-filter="parking">Parkplätze</button></div>
 <div class="legend"><div class="row"><span class="dot open"></span>offen</div><div class="row"><span class="dot partial"></span>teilweise</div><div class="row"><span class="dot closed"></span>gesperrt</div><div class="row"><span class="dot parking"></span>Parkplatz</div></div>
 <div class="noticeWrap"><div class="notice" id="notice"><h2 id="noticeTitle"></h2><p id="noticeText"></p><div class="actions" id="noticeActions"></div></div></div>
@@ -30,12 +30,31 @@ const sectors=window.BLEAU_SECTORS||[];
 const map=L.map('map',{zoomControl:true}).setView([48.405,2.615],11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
 const parkings=[
-{name:'Parking Bas Cuvier',lat:48.446425,lng:2.637633},
-{name:'Parking Isatis',lat:48.411243,lng:2.598477},
-{name:'Parking Rocher Canon',lat:48.463025,lng:2.666148},
-{name:'Parking Roche aux Sabots / Noisy',lat:48.374543,lng:2.513916,warning:'Der zugehörige Bereich ist derzeit gesperrt.'},
-{name:'Parking Croix Saint-Jérôme (95.2)',lat:48.387789,lng:2.519429,warning:'95.2 ist derzeit gesperrt.'},
-{name:'Parking de l’Éléphant',lat:48.29301,lng:2.59822}
+{name:'Parking Bas Cuvier',lat:48.446425,lng:2.637633,for:'Cuvier, Cuvier Ouest, Cuvier Nord, Cuvier Rempart'},
+{name:'Parking Franchard Isatis / Plaine de Macherin',lat:48.411158,lng:2.598489,for:'Franchard Isatis, Hautes Plaines, Sablons, Meyer'},
+{name:'Parking Franchard Cuisinière',lat:48.417072,lng:2.607630,for:'Franchard Cuisinière und Crêtes Sud'},
+{name:'Parking Franchard Ermitage / Raymond',lat:48.409035,lng:2.634742,for:'Franchard Raymond und Umgebung'},
+{name:'Parking Rocher Canon',lat:48.462885,lng:2.666102,for:'Rocher Canon und Rocher Canon Ouest'},
+{name:'Parking Apremont Hauptzugang',lat:48.440565,lng:2.624305,for:'Apremont, Bizons, Bizons Enfants, Butte aux Dames, Ouest, Envers'},
+{name:'Parking Apremont Désert / Clair Bois',lat:48.445376,lng:2.637148,for:'Apremont Désert und östliche Apremont-Bereiche'},
+{name:'Parking Apremont Chaos',lat:48.430234,lng:2.638643,for:'Apremont Portes du Désert, Solitude, Sully und südliche Bereiche'},
+{name:'Parking Rocher Saint-Germain',lat:48.440750,lng:2.689775,for:'Rocher Saint-Germain Est'},
+{name:'Parking Roche d’Hercule',lat:48.420907,lng:2.698678,for:'Roche d’Hercule und Mont Ussy Est'},
+{name:'Parking Mont Ussy',lat:48.418019,lng:2.694808,for:'Mont Ussy und Mont Ussy Est'},
+{name:'Parking Le Calvaire',lat:48.425339,lng:2.709494,for:'Le Calvaire'},
+{name:'Parking Mont Aigu',lat:48.404927,lng:2.677557,for:'Mont Aigu',warning:'Mont Aigu ist derzeit gesperrt – Parkplatz nur als Orientierung angezeigt.'},
+{name:'Parking Rocher d’Avon',lat:48.396013,lng:2.722396,for:'Rocher d’Avon und Rocher d’Avon Est'},
+{name:'Parking Restant du Long Rocher',lat:48.353836,lng:2.727659,for:'Restant du Long Rocher und Süd'},
+{name:'Parking Rocher de Bouligny',lat:48.384811,lng:2.688181,for:'Rocher de Bouligny'},
+{name:'Parking de l’Éléphant',lat:48.29301,lng:2.59822,for:'Éléphant, Dame Jouanne und Larchant-Umgebung'},
+{name:'Parking Noisy-sur-École / Roche aux Sabots',lat:48.373140,lng:2.510375,for:'Roche aux Sabots, Cul de Chien, 91.1, Roche aux Oiseaux, La Ségognole',warning:'Mehrere zugehörige Trois-Pignons-Sektoren sind weiterhin gesperrt oder nur eingeschränkt zugänglich.'},
+{name:'Parking Croix Saint-Jérôme / 95.2',lat:48.387789,lng:2.519429,for:'95.2 und westliche Trois-Pignons-Bereiche',warning:'95.2 ist derzeit gesperrt.'},
+{name:'Parking Gorge aux Châts',lat:48.399608,lng:2.516904,for:'Gorge aux Châts'},
+{name:'Parking Feuillardière / Télégraphe',lat:48.401329,lng:2.546984,for:'Rocher du Télégraphe und Feuillardière'},
+{name:'Parking Canche aux Merciers',lat:48.390452,lng:2.552572,for:'Canche aux Merciers'},
+{name:'Parking Corne-Biche',lat:48.399383,lng:2.566086,for:'Corne-Biche'},
+{name:'Parking Drei Zinnen',lat:48.393259,lng:2.555213,for:'Drei Zinnen'},
+{name:'Parking Rocher de la Reine / Bois Rond',lat:48.390951,lng:2.557455,for:'Rocher de la Reine, Bois Rond und Bois Rond Auberge'}
 ];
 const layers={sector:[],parking:[]};
 function statusColor(s){return s==='open'?'#58d68d':s==='closed'?'#ff6f67':'#f4c65d'}
@@ -54,7 +73,7 @@ sectors.forEach(s=>{
  layers.sector.push(m);
 });
 const pIcon=L.divIcon({className:'',html:'<div style="width:29px;height:29px;border-radius:50%;background:#2787d8;border:3px solid #fff;box-shadow:0 2px 8px #0008;display:grid;place-items:center;color:#fff;font:bold 16px system-ui">P</div>',iconSize:[29,29],iconAnchor:[14,14]});
-parkings.forEach(p=>{const m=L.marker([p.lat,p.lng],{icon:pIcon}).addTo(map);m._kind='parking';const g=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;m.bindPopup(`<div class="title">${p.name}</div><div class="sub">${p.warning||'Navigation direkt zu diesem Parkplatz.'}</div><a class="maps" href="${g}" target="_blank" rel="noopener">In Google Maps navigieren</a>`);layers.parking.push(m)});
+parkings.forEach(p=>{const m=L.marker([p.lat,p.lng],{icon:pIcon}).addTo(map);m._kind='parking';const g=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;m.bindPopup(`<div class="title">${p.name}</div><div class="sub">${p.warning||'Navigation direkt zu diesem Parkplatz.'}<div class="parkingFor"><b>Zugang für:</b><br>${p.for}</div></div><a class="maps" href="${g}" target="_blank" rel="noopener">In Google Maps navigieren</a>`);layers.parking.push(m)});
 function setFilter(f){
  document.querySelectorAll('.filterBtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
  [...layers.sector,...layers.parking].forEach(l=>map.removeLayer(l));
@@ -63,7 +82,7 @@ function setFilter(f){
  else{layers.sector.filter(l=>l._status===f).forEach(l=>l.addTo(map))}
 }
 document.querySelectorAll('.filterBtn').forEach(b=>b.onclick=()=>setFilter(b.dataset.filter));
-document.getElementById('subtitle').textContent=`${sectors.length} Sektoren · Zugangsstatus · Stand 3.–4. Sept. 2026`;
+document.getElementById('subtitle').textContent=`${sectors.length} Sektoren · ${parkings.length} Parkplätze · Stand 3.–4. Sept. 2026`;
 let userMarker,userCircle;const notice=document.getElementById('notice'),noticeTitle=document.getElementById('noticeTitle'),noticeText=document.getElementById('noticeText'),noticeActions=document.getElementById('noticeActions');
 function hideNotice(){notice.classList.remove('show')}
 function showNotice(t,x,buttons=[]){noticeTitle.textContent=t;noticeText.innerHTML=x;noticeActions.innerHTML='';buttons.forEach(b=>{const el=document.createElement('button');el.textContent=b.text;el.className=b.cls||'close';el.onclick=b.fn;noticeActions.appendChild(el)});notice.classList.add('show')}
