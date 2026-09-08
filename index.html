@@ -27,7 +27,8 @@ button{border:0;border-radius:13px;padding:10px 11px;font-weight:800;background:
 const STATUS_SOURCE='https://www.topo-bleau.fr/Home';
 const BOOLDER_BASE='https://www.boolder.com/en/fontainebleau/';
 const sectors=window.BLEAU_SECTORS||[];
-const map=L.map('map',{zoomControl:true}).setView([48.405,2.615],11);
+const map=L.map('map',{zoomControl:false}).setView([48.405,2.615],11);
+L.control.zoom({position:'bottomleft'}).addTo(map);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
 const parkings=[
 {name:'Parking Bas Cuvier',lat:48.446425,lng:2.637633,for:'Cuvier, Cuvier Ouest, Cuvier Nord, Cuvier Rempart'},
